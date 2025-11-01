@@ -201,6 +201,11 @@
             background: #666;
         }
 
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .separator {
             border-top: 2px solid #747474;
             margin: 15px 0;
@@ -229,6 +234,13 @@
             font-size: 13px;
             text-align: center;
         }
+
+        .success-message {
+            color: #00ff00;
+            margin: 10px 0;
+            font-size: 13px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -246,6 +258,7 @@
  |____/ \___/_/\_\_.__/|_|_| |_|</div>
             </a>
             <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
             <form id="uploadForm" onsubmit="submitPaste(event)">
                 <div class="form-group">
                     <label><strong>Title:</strong></label>
@@ -261,21 +274,15 @@
 
                 <div class="separator"></div>
 
-                <button type="submit" class="button">Create</button>
+                <button type="submit" class="button" id="submitBtn">Create</button>
 
                 <div class="separator"></div>
             </form>
         </div>
     </div>
 
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
-        const SUPABASE_URL = 'https://xsenbbecfusdvxmkdkqg.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZW5iYmVjZnVzZHZ4bWtka3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NDgxMDUsImV4cCI6MjA3NzUyNDEwNX0.5ufF7abIrQUWuEXADeaBarDB5ajSAaTXNcWQMvMwKvc';
-
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+    <script>
+        // Usa window.storage invece di Supabase per evitare CORS
         window.submitPaste = async function(e) {
             e.preventDefault();
             
@@ -283,8 +290,11 @@
             const content = document.getElementById('pasteContent').value;
             const notifyFollowers = document.getElementById('notify').checked;
             const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            const submitBtn = document.getElementById('submitBtn');
             
             errorDiv.textContent = '';
+            successDiv.textContent = '';
 
             if (!title) {
                 errorDiv.textContent = 'Title is required';
@@ -296,34 +306,39 @@
                 return;
             }
 
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating...';
+
             try {
-                const { data: { session } } = await supabase.auth.getSession();
-                const username = session ? (session.user.user_metadata.username || session.user.email.split('@')[0]) : 'Anonymous';
-                const userId = session ? session.user.id : null;
+                // Genera ID univoco
+                const pasteId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                
+                // Prepara i dati del paste
+                const pasteData = {
+                    id: pasteId,
+                    title: title,
+                    content: content,
+                    created_by: 'Anonymous',
+                    views: 0,
+                    comments: 0,
+                    notify_followers: notifyFollowers,
+                    created_at: new Date().toISOString()
+                };
 
-                const { data, error } = await supabase
-                    .from('pastes')
-                    .insert([
-                        {
-                            title: title,
-                            content: content,
-                            created_by: username,
-                            user_id: userId,
-                            views: 0,
-                            comments: 0,
-                            notify_followers: notifyFollowers
-                        }
-                    ])
-                    .select()
-                    .single();
+                // Salva usando window.storage
+                await window.storage.set(`paste:${pasteId}`, JSON.stringify(pasteData), true);
 
-                if (error) throw error;
-
-                window.location.href = 'index.html';
+                successDiv.textContent = 'Paste created successfully!';
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
 
             } catch (error) {
                 console.error('Error creating paste:', error);
                 errorDiv.textContent = 'An error occurred while creating the paste';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create';
             }
         };
 
