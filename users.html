@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users | Doxbin Italia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: #0a0a0a;
+            border-bottom: 1px solid #1a1a1a;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .nav-brand a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .navbar-toggler {
+            display: none;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .nav-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 25px;
+        }
+
+        .nav-menu li a {
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .nav-menu li a:hover,
+        .nav-menu li.active a {
+            color: #ffffff;
+        }
+
+        .nav-auth {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-auth li a {
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .nav-auth li a:hover {
+            color: #ffffff;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-toggle {
+            background: none;
+            border: none;
+            color: #2A9FD6;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px 12px;
+            transition: color 0.2s;
+        }
+
+        .dropdown-toggle:hover {
+            color: #0da9f8;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            min-width: 150px;
+            margin-top: 5px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 15px;
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .dropdown-menu a:hover {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .online-count {
+            display: flex;
+            align-items: center;
+            color: #00ff00;
+            font-size: 12px;
+        }
+
+        .online-count::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #00ff00;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(0, 255, 0, 0); }
+        }
+
+        .users-section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .users-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .users-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .user-card {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .user-card:hover {
+            border-color: #2A9FD6;
+            transform: translateY(-2px);
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: block;
+            border: 2px solid #1a1a1a;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 5px;
+            color: #2A9FD6;
+        }
+
+        .user-role {
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .role-owner {
+            background: #ff0000;
+            color: white;
+        }
+
+        .role-admin {
+            background: #800080;
+            color: white;
+        }
+
+        .role-premium {
+            background: #ffff00;
+            color: black;
+        }
+
+        .role-user {
+            background: #ffffff;
+            color: #000;
+        }
+
+        .user-bio {
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .user-stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .stat {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .stat-number {
+            font-size: 16px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1000px) {
+            .navbar-toggler {
+                display: block;
+            }
+
+            .nav-wrapper {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background: #0a0a0a;
+                flex-direction: column;
+                padding: 20px;
+                transition: left 0.3s;
+                gap: 20px;
+                align-items: flex-start;
+            }
+
+            .nav-wrapper.show {
+                left: 0;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+                width: 100%;
+                gap: 15px;
+            }
+
+            .nav-auth {
+                flex-direction: column;
+                width: 100%;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .users-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html">Doxbin Italia</a>
+            </div>
+            <button class="navbar-toggler" onclick="toggleMenu()">☰</button>
+            <div class="nav-wrapper">
+                <ul class="nav-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="upload.html">Add Paste</a></li>
+                    <li class="active"><a href="users.html">Users</a></li>
+                </ul>
+                <div class="online-count">
+                    <span id="onlineCount">0</span>
+                </div>
+                <div class="nav-auth" id="navAuth">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="users-section">
+        <div class="users-header">
+            <h1>Community Members</h1>
+            <p>Discover other users in the Doxbin Italia community</p>
+        </div>
+
+        <div class="users-grid" id="usersGrid">
+            <!-- Users will be loaded here -->
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://xsenbbecfusdvxmkdkqg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZW5iYmVjZnVzZHZ4bWtka3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NDgxMDUsImV4cCI6MjA3NzUyNDEwNX0.5ufF7abIrQUWuEXADeaBarDB5ajSAaTXNcWQMvMwKvc';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Check session and update nav
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            const navAuth = document.getElementById('navAuth');
+
+            if (session) {
+                const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+                navAuth.innerHTML = `
+                    <li class="dropdown">
+                        <button class="dropdown-toggle" onclick="toggleDropdown(event)">
+                            <span style="color: #2A9FD6;">${username}</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="settings.html">Settings</a>
+                            <a href="#" onclick="handleLogout(event)">Logout</a>
+                        </div>
+                    </li>
+                `;
+            } else {
+                navAuth.innerHTML = `
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="register.html">Register</a></li>
+                `;
+            }
+        }
+
+        // Menu functions
+        window.toggleMenu = function() {
+            document.querySelector('.nav-wrapper').classList.toggle('show');
+        };
+
+        window.toggleDropdown = function(event) {
+            event.stopPropagation();
+            const menu = event.currentTarget.nextElementSibling;
+            menu.classList.toggle('show');
+        };
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        });
+
+        window.handleLogout = async function(event) {
+            event.preventDefault();
+            await supabase.auth.signOut();
+            checkSession();
+            window.location.reload();
+        };
+
+        // Update online count
+        async function updateOnlineCount() {
+            try {
+                const thirtySecondsAgo = new Date(Date.now() - 30000).toISOString();
+                const { count } = await supabase
+                    .from('online_users')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('last_seen', thirtySecondsAgo);
+                document.getElementById('onlineCount').textContent = count || 0;
+            } catch (error) {
+                console.error('Error updating count:', error);
+            }
+        }
+
+        // Load users
+        async function loadUsers() {
+            try {
+                // Get all users from auth (this might need admin privileges, so we'll simulate with pastes data)
+                const { data: pastes, error } = await supabase
+                    .from('pastes')
+                    .select('created_by, user_id')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                // Get unique users
+                const usersMap = new Map();
+                pastes.forEach(paste => {
+                    if (!usersMap.has(paste.user_id)) {
+                        usersMap.set(paste.user_id, {
+                            username: paste.created_by,
+                            pastesCount: 0,
+                            role: 'user'  // Default role, in real app fetch from auth or separate table
+                        });
+                    }
+                    usersMap.get(paste.user_id).pastesCount++;
+                });
+
+                const users = Array.from(usersMap.values());
+
+                const usersGrid = document.getElementById('usersGrid');
+                usersGrid.innerHTML = '';
+
+                users.forEach(user => {
+                    const role = user.role || 'user'; // Default to user if no role
+                    const roleClass = `role-${role}`;
+                    const roleDisplay = role.charAt(0).toUpperCase() + role.slice(1);
+
+                    const userCard = document.createElement('div');
+                    userCard.className = 'user-card';
+                    userCard.innerHTML = `
+                        <img src="https://ui-avatars.com/api/?name=${user.username}&background=0da9f8&color=fff&size=200" alt="${user.username}" class="user-avatar">
+                        <div class="user-name">${user.username}</div>
+                        <div class="user-role ${roleClass}">${roleDisplay}</div>
+                        <div class="user-bio">Member of Doxbin Italia community</div>
+                        <div class="user-stats">
+                            <div class="stat">
+                                <div class="stat-number">${user.pastesCount}</div>
+                                <div>Pastes</div>
+                            </div>
+                        </div>
+                    `;
+                    usersGrid.appendChild(userCard);
+                });
+
+                if (users.length === 0) {
+                    usersGrid.innerHTML = '<p style="text-align: center; color: #888; grid-column: 1 / -1;">No users found yet.</p>';
+                }
+
+            } catch (error) {
+                console.error('Error loading users:', error);
+                document.getElementById('usersGrid').innerHTML = '<p style="text-align: center; color: #ff0000;">Error loading users.</p>';
+            }
+        }
+
+        // Init
+        checkSession();
+        loadUsers();
+        updateOnlineCount();
+        setInterval(updateOnlineCount, 5000);
+
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            checkSession();
+        });
+    </script>
+</body>
+</html>
