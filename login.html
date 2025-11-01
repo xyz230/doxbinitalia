@@ -337,10 +337,23 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZW5iYmVjZnVzZHZ4bWtka3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NDgxMDUsImV4cCI6MjA3NzUyNDEwNX0.5ufF7abIrQUWuEXADeaBarDB5ajSAaTXNcWQMvMwKvc';
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Check if already logged in
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-            window.location.href = 'index.html';
+        // Check if already logged in - wrapped in async function
+        async function checkExistingSession() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error('Session check error:', error);
+            }
+        }
+
+        // Execute check after DOM is loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkExistingSession);
+        } else {
+            checkExistingSession();
         }
 
         // Menu toggle
