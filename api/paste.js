@@ -3,14 +3,11 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  const pasteData = req.body;
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_KEY = process.env.SUPABASE_KEY;
+  const pasteData = req.body;
 
   try {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/pastes`, {
@@ -25,7 +22,6 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-
     if (!response.ok) {
       console.error('Supabase error:', data);
       return res.status(response.status).json({ error: data });
