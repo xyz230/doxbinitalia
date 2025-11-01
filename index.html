@@ -328,15 +328,18 @@
             <button class="navbar-toggler" onclick="toggleMenu()">☰</button>
             <div class="nav-wrapper">
                 <ul class="nav-menu">
-                    <li><a href="index.html">Home</a></li>
+                    <li class="active"><a href="index.html">Home</a></li>
                     <li><a href="upload.html">Add Paste</a></li>
-                    <li><a href="#users">Users</a></li>
+                    <li><a href="users.html">Users</a></li>
                 </ul>
-                <div class="nav-auth" id="navAuth"></div>
+                <div class="online-count">
+                    <span id="onlineCount">0</span>
+                </div>
+                <div class="nav-auth" id="navAuth">
+                </div>
             </div>
         </div>
     </nav>
-
 
     <div class="logo-container">
         <img src="https://i.imgur.com/EcJrFdz.png" alt="Doxbin">
@@ -509,9 +512,6 @@
 
 </body>
 </html>
-
-
-
 
 
 
