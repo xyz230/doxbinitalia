@@ -305,7 +305,6 @@
         const SUPABASE_URL = 'https://xsenbbecfusdvxmkdkqg.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZW5iYmVjZnVzZHZ4bWtka3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NDgxMDUsImV4cCI6MjA3NzUyNDEwNX0.5ufF7abIrQUWuEXADeaBarDB5ajSAaTXNcWQMvMwKvc';
 
-        // IMPORTANTE: Rimuovi persistSession: false per mantenere la sessione!
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Menu toggle
@@ -327,27 +326,15 @@
             });
         });
 
-        // Update online count - conta solo utenti registrati unici
+        // Update online count - VELOCISSIMO con view
         async function updateOnlineCount() {
             try {
-                const thirtySecondsAgo = new Date(Date.now() - 30000).toISOString();
-                
-                // Prendi tutte le sessioni attive
-                const { data: sessions, error } = await supabase
-                    .from('online_users')
-                    .select('user_id')
-                    .gte('last_seen', thirtySecondsAgo);
+                const { data } = await supabase
+                    .from('online_users_count')
+                    .select('count')
+                    .single();
 
-                if (error) throw error;
-
-                // Conta solo utenti unici (rimuovi duplicati e sessioni guest)
-                const uniqueUsers = new Set(
-                    sessions
-                        .filter(s => s.user_id) // Solo utenti loggati
-                        .map(s => s.user_id)
-                );
-
-                document.getElementById('onlineCount').textContent = uniqueUsers.size;
+                document.getElementById('onlineCount').textContent = data?.count || 0;
             } catch (error) {
                 console.error('Error updating count:', error);
                 document.getElementById('onlineCount').textContent = 0;
@@ -418,14 +405,24 @@
                 const response = await fetch('https://api.ipify.org?format=json');
                 const data = await response.json();
                 
+                // Ottieni l'user_id se loggato
+                const { data: { session } } = await supabase.auth.getSession();
+                const userId = session?.user?.id || null;
+                
                 await supabase.from('online_users').insert({
                     session_id: sessionId,
+                    user_id: userId,
                     ip_address: data.ip,
                     last_seen: new Date().toISOString()
                 });
 
                 setInterval(async () => {
+                    // Aggiorna anche user_id nel caso l'utente faccia login durante la sessione
+                    const { data: { session } } = await supabase.auth.getSession();
+                    const userId = session?.user?.id || null;
+                    
                     await supabase.from('online_users').update({
+                        user_id: userId,
                         last_seen: new Date().toISOString()
                     }).eq('session_id', sessionId);
                 }, 5000);
