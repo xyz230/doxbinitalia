@@ -291,8 +291,8 @@
             <div class="nav-wrapper">
                 <ul class="nav-menu">
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="/upload">Add Paste</a></li>
-                    <li><a href="/users">Users</a></li>
+                    <li><a href="upload.html">Add Paste</a></li>
+                    <li><a href="#users">Users</a></li>
                 </ul>
                 <div class="online-count">
                     <span id="onlineCount">0</span>
@@ -310,8 +310,8 @@
             <h1>Login</h1>
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
+                    <label for="username">Username</label>
+                    <input type="text" id="username" class="form-input" placeholder="Enter your username" required>
                 </div>
                 
                 <div class="form-group">
@@ -387,10 +387,10 @@
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const email = document.getElementById('email').value;
+
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            
+
             // Reset messages
             errorMessage.style.display = 'none';
             successMessage.style.display = 'none';
@@ -398,6 +398,9 @@
             loginBtn.textContent = 'Logging in...';
 
             try {
+                // Generate email from username
+                const email = `${username}@doxbin.local`;
+
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: email,
                     password: password
@@ -407,13 +410,13 @@
 
                 successMessage.textContent = 'Login successful! Redirecting...';
                 successMessage.style.display = 'block';
-                
+
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 1000);
 
             } catch (error) {
-                errorMessage.textContent = error.message || 'Invalid email or password';
+                errorMessage.textContent = error.message || 'Invalid username or password';
                 errorMessage.style.display = 'block';
                 loginBtn.disabled = false;
                 loginBtn.textContent = 'Login';
