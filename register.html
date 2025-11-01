@@ -312,8 +312,8 @@
             <div class="nav-wrapper">
                 <ul class="nav-menu">
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="/upload">Add Paste</a></li>
-                    <li><a href="/users">Users</a></li>
+                    <li><a href="upload.html">Add Paste</a></li>
+                    <li><a href="#users">Users</a></li>
                 </ul>
                 <div class="online-count">
                     <span id="onlineCount">0</span>
@@ -335,10 +335,7 @@
                     <input type="text" id="username" class="form-input" placeholder="Choose a username" required minlength="3">
                 </div>
 
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
-                </div>
+
                 
                 <div class="form-group">
                     <label for="password">Password</label>
@@ -424,12 +421,11 @@
 
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            
+
             // Reset messages
             errorMessage.style.display = 'none';
             successMessage.style.display = 'none';
@@ -445,22 +441,26 @@
             registerBtn.textContent = 'Registering...';
 
             try {
+                // Generate dummy email from username
+                const email = `${username}@doxbin.local`;
+
                 // Register user
                 const { data, error } = await supabase.auth.signUp({
                     email: email,
                     password: password,
                     options: {
                         data: {
-                            username: username
+                            username: username,
+                            role: 'user'  // Default role
                         }
                     }
                 });
 
                 if (error) throw error;
 
-                successMessage.textContent = 'Registration successful! Redirecting to login...';
+                successMessage.textContent = 'Registration successful! Redirecting...';
                 successMessage.style.display = 'block';
-                
+
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 2000);
