@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | Doxbin Italia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: #0a0a0a;
+            border-bottom: 1px solid #1a1a1a;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        
+        .nav-brand a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .navbar-toggler {
+            display: none;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .nav-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 25px;
+        }
+        
+        .nav-menu li a {
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        
+        .nav-menu li a:hover {
+            color: #ffffff;
+        }
+        
+        .nav-auth {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle {
+            background: none;
+            border: none;
+            color: #2A9FD6;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px 12px;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            min-width: 150px;
+            margin-top: 5px;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 15px;
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .dropdown-menu a:hover {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .settings-container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .settings-header {
+            margin-bottom: 30px;
+        }
+
+        .settings-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .settings-section {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #888;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: #181818;
+            border: 1px solid #282828;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: #0da9f8;
+        }
+
+        .form-input::placeholder {
+            color: #555;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .avatar-upload {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #1a1a1a;
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            padding: 10px 20px;
+            background: #282828;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .file-input-label:hover {
+            background: #333;
+        }
+
+        .save-button {
+            width: 100%;
+            padding: 12px;
+            background: #0da9f8;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-weight: 500;
+        }
+
+        .save-button:hover {
+            background: #0c8fd8;
+        }
+
+        .save-button:disabled {
+            background: #333;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #ff0000;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .success-message {
+            color: #00ff00;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .danger-zone {
+            border: 1px solid #ff0000;
+        }
+
+        .danger-button {
+            background: #ff0000;
+        }
+
+        .danger-button:hover {
+            background: #cc0000;
+        }
+
+        @media (max-width: 768px) {
+            .avatar-upload {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .settings-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html">Doxbin Italia</a>
+            </div>
+            <button class="navbar-toggler" onclick="toggleMenu()">☰</button>
+            <div class="nav-wrapper">
+                <ul class="nav-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="/upload">Add Paste</a></li>
+                    <li><a href="/users">Users</a></li>
+                </ul>
+                <div class="nav-auth" id="navAuth"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="settings-container">
+        <div class="settings-header">
+            <h1>Account Settings</h1>
+        </div>
+
+        <!-- Profile Settings -->
+        <div class="settings-section">
+            <div class="section-title">Profile Information</div>
+            
+            <form id="profileForm">
+                <div class="form-group">
+                    <label>Profile Picture</label>
+                    <div class="avatar-upload">
+                        <div class="avatar-preview">
+                            <img id="avatarPreview" src="https://ui-avatars.com/api/?name=User&background=0da9f8&color=fff&size=200" alt="Avatar">
+                        </div>
+                        <div class="file-input-wrapper">
+                            <label class="file-input-label" for="avatarInput">Choose Image</label>
+                            <input type="file" id="avatarInput" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" class="form-input" placeholder="Your username">
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">Bio</label>
+                    <textarea id="bio" class="form-input form-textarea" placeholder="Tell us about yourself..."></textarea>
+                </div>
+
+                <button type="submit" class="save-button" id="profileBtn">Save Profile</button>
+                <div id="profileError" class="error-message"></div>
+                <div id="profileSuccess" class="success-message"></div>
+            </form>
+        </div>
+
+        <!-- Account Settings -->
+        <div class="settings-section">
+            <div class="section-title">Account Settings</div>
+            
+            <form id="accountForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-input" placeholder="your.email@example.com">
+                </div>
+
+                <button type="submit" class="save-button" id="emailBtn">Update Email</button>
+                <div id="emailError" class="error-message"></div>
+                <div id="emailSuccess" class="success-message"></div>
+            </form>
+        </div>
+
+        <!-- Password Settings -->
+        <div class="settings-section">
+            <div class="section-title">Change Password</div>
+            
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" class="form-input" placeholder="Enter new password" minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm new password">
+                </div>
+
+                <button type="submit" class="save-button" id="passwordBtn">Change Password</button>
+                <div id="passwordError" class="error-message"></div>
+                <div id="passwordSuccess" class="success-message"></div>
+            </form>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="settings-section danger-zone">
+            <div class="section-title" style="color: #ff0000;">Danger Zone</div>
+            
+            <button onclick="deleteAccount()" class="save-button danger-button">Delete Account</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        
+        const SUPABASE_URL = 'https://xsenbbecfusdvxmkdkqg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZW5iYmVjZnVzZHZ4bWtka3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NDgxMDUsImV4cCI6MjA3NzUyNDEwNX0.5ufF7abIrQUWuEXADeaBarDB5ajSAaTXNcWQMvMwKvc';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            window.location.href = 'login.html';
+        }
+
+        window.toggleMenu = function() {
+            document.querySelector('.nav-wrapper').classList.toggle('show');
+        };
+
+        window.toggleDropdown = function(event) {
+            event.stopPropagation();
+            event.currentTarget.nextElementSibling.classList.toggle('show');
+        };
+
+        window.handleLogout = async function(event) {
+            event.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        };
+
+        // Update navbar
+        const username = session.user.user_metadata.username || session.user.email.split('@')[0];
+        document.getElementById('navAuth').innerHTML = `
+            <li class="dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown(event)">
+                    <span style="color: #2A9FD6;">${username}</span>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="profile.html">Profile</a>
+                    <a href="settings.html">Settings</a>
+                    <a href="#" onclick="handleLogout(event)">Logout</a>
+                </div>
+            </li>
+        `;
+
+        // Load current data
+        document.getElementById('username').value = username;
+        document.getElementById('email').value = session.user.email;
+        document.getElementById('bio').value = session.user.user_metadata.bio || '';
+        
+        const avatarUrl = session.user.user_metadata.avatar_url || `https://ui-avatars.com/api/?name=${username}&background=0da9f8&color=fff&size=200`;
+        document.getElementById('avatarPreview').src = avatarUrl;
+
+        // Avatar upload preview
+        document.getElementById('avatarInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Profile form
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const profileBtn = document.getElementById('profileBtn');
+            const errorMsg = document.getElementById('profileError');
+            const successMsg = document.getElementById('profileSuccess');
+            
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            profileBtn.disabled = true;
+            profileBtn.textContent = 'Saving...';
+
+            try {
+                const newUsername = document.getElementById('username').value;
+                const newBio = document.getElementById('bio').value;
+                const avatarFile = document.getElementById('avatarInput').files[0];
+                
+                let avatarUrl = session.user.user_metadata.avatar_url;
+                
+                // Upload avatar if changed
+                if (avatarFile) {
+                    avatarUrl = await uploadAvatar(avatarFile);
+                }
+
+                const { error } = await supabase.auth.updateUser({
+                    data: {
+                        username: newUsername,
+                        bio: newBio,
+                        avatar_url: avatarUrl
+                    }
+                });
+
+                if (error) throw error;
+
+                successMsg.textContent = 'Profile updated successfully!';
+                successMsg.style.display = 'block';
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+
+            } catch (error) {
+                errorMsg.textContent = error.message;
+                errorMsg.style.display = 'block';
+                profileBtn.disabled = false;
+                profileBtn.textContent = 'Save Profile';
+            }
+        });
+
+        // Email form
+        document.getElementById('accountForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const emailBtn = document.getElementById('emailBtn');
+            const errorMsg = document.getElementById('emailError');
+            const successMsg = document.getElementById('emailSuccess');
+            
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            emailBtn.disabled = true;
+            emailBtn.textContent = 'Updating...';
+
+            try {
+                const newEmail = document.getElementById('email').value;
+                
+                const { error } = await supabase.auth.updateUser({
+                    email: newEmail
+                });
+
+                if (error) throw error;
+
+                successMsg.textContent = 'Email updated! Please check your inbox to confirm.';
+                successMsg.style.display = 'block';
+                emailBtn.disabled = false;
+                emailBtn.textContent = 'Update Email';
+
+            } catch (error) {
+                errorMsg.textContent = error.message;
+                errorMsg.style.display = 'block';
+                emailBtn.disabled = false;
+                emailBtn.textContent = 'Update Email';
+            }
+        });
+
+        // Password form
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const passwordBtn = document.getElementById('passwordBtn');
+            const errorMsg = document.getElementById('passwordError');
+            const successMsg = document.getElementById('passwordSuccess');
+            
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+
+            if (newPassword !== confirmPassword) {
+                errorMsg.textContent = 'Passwords do not match!';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            passwordBtn.disabled = true;
+            passwordBtn.textContent = 'Changing...';
+
+            try {
+                const { error } = await supabase.auth.updateUser({
+                    password: newPassword
+                });
+
+                if (error) throw error;
+
+                successMsg.textContent = 'Password changed successfully!';
+                successMsg.style.display = 'block';
+                
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                
+                passwordBtn.disabled = false;
+                passwordBtn.textContent = 'Change Password';
+
+            } catch (error) {
+                errorMsg.textContent = error.message;
+                errorMsg.style.display = 'block';
+                passwordBtn.disabled = false;
+                passwordBtn.textContent = 'Change Password';
+            }
+        });
+
+        // Upload avatar function
+        async function uploadAvatar(file) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${session.user.id}-${Math.random()}.${fileExt}`;
+            
+            // For now, convert to base64 and store in metadata
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Delete account
+        window.deleteAccount = async function() {
+            if (confirm('Are you sure you want to delete your account? This action cannot be undone!')) {
+                if (confirm('This will permanently delete all your data. Are you absolutely sure?')) {
+                    try {
+                        // Note: Account deletion would need to be implemented server-side
+                        alert('Account deletion would be processed. Contact support for now.');
+                    } catch (error) {
+                        alert('Error deleting account: ' + error.message);
+                    }
+                }
+            }
+        };
+    </script>
+</body>
+</html>
