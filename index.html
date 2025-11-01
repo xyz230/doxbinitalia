@@ -300,18 +300,13 @@
     </div>
 
     <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-const SUPABASE_URL = 'https://xsenbbecfusdvxmkdkqg.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZW5iYmVjZnVzZHZ4bWtka3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NDgxMDUsImV4cCI6MjA3NzUyNDEwNX0.5ufF7abIrQUWuEXADeaBarDB5ajSAaTXNcWQMvMwKvc';
+        const SUPABASE_URL = 'https://xsenbbecfusdvxmkdkqg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZW5iYmVjZnVzZHZ4bWtka3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NDgxMDUsImV4cCI6MjA3NzUyNDEwNX0.5ufF7abIrQUWuEXADeaBarDB5ajSAaTXNcWQMvMwKvc';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    persistSession: false, // evita cookie/sessioni troppo grandi
-    autoRefreshToken: false,
-  },
-});
-
+        // IMPORTANTE: Rimuovi persistSession: false per mantenere la sessione!
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Menu toggle
         window.toggleMenu = function() {
@@ -349,43 +344,58 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 
         // Check authentication and update navbar
         async function updateNavbar() {
-            const { data: { session } } = await supabase.auth.getSession();
-            const navAuth = document.getElementById('navAuth');
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                const navAuth = document.getElementById('navAuth');
 
-            if (session && session.user) {
-                const username = session.user.user_metadata.username || session.user.email.split('@')[0];
-                
-                navAuth.innerHTML = `
-                    <li class="desktop-only dropdown">
-                        <button class="dropdown-toggle" onclick="toggleDropdown(event)">
-                            <span style="color: #2A9FD6;">${username}</span>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="profile.html">Profile</a>
-                            <a href="settings.html">Settings</a>
-                            <a href="#" onclick="handleLogout(event)">Logout</a>
-                        </div>
-                    </li>
-                `;
-            } else {
-                navAuth.innerHTML = `
-                    <li><a href="login.html">Login</a></li>
-                    <li><a href="register.html">Register</a></li>
-                `;
+                if (session && session.user) {
+                    const username = session.user.user_metadata.username || session.user.email.split('@')[0];
+                    
+                    navAuth.innerHTML = `
+                        <li class="desktop-only dropdown">
+                            <button class="dropdown-toggle" onclick="toggleDropdown(event)">
+                                <span style="color: #2A9FD6;">${username}</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a href="profile.html">Profile</a>
+                                <a href="settings.html">Settings</a>
+                                <a href="#" onclick="handleLogout(event)">Logout</a>
+                            </div>
+                        </li>
+                    `;
+                } else {
+                    navAuth.innerHTML = `
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Register</a></li>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error updating navbar:', error);
             }
         }
 
         // Logout handler
         window.handleLogout = async function(event) {
             event.preventDefault();
-            await supabase.auth.signOut();
-            window.location.reload();
+            try {
+                await supabase.auth.signOut();
+                window.location.reload();
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
         };
 
         // Initialize
         updateOnlineCount();
         setInterval(updateOnlineCount, 5000);
         updateNavbar();
+
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                updateNavbar();
+            }
+        });
 
         // Track session
         let sessionId = null;
@@ -422,5 +432,3 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     </script>
 </body>
 </html>
-
-
