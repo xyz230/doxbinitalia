@@ -369,41 +369,33 @@
     </div>
 
 <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
-// CONFIG — metti le tue chiavi Supabase
-const SUPABASE_URL = 'https://xsenbbecfusdvxmkdkqg.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZW5iYmVjZnVzZHZ4bWtka3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NDgxMDUsImV4cCI6MjA3NzUyNDEwNX0.5ufF7abIrQUWuEXADeaBarDB5ajSAaTXNcWQMvMwKvc';
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 let sessionId = null;
 
-// 🟢 Crea e registra la sessione
+// 🟢 Crea e registra la sessione tramite il tuo endpoint /api/presence
 async function initSession() {
   sessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now();
 
   try {
-    const res = await fetch('https://api.ipify.org?format=json');
-    const ip = (await res.json()).ip;
-
-    const { data: { session } } = await supabase.auth.getSession();
-    const userId = session?.user?.id || null;
-
-    await supabase.from('online_users').insert({
-      session_id: sessionId,
-      user_id: userId,
-      ip_address: ip,
-      last_seen: new Date().toISOString()
+    await fetch('https://www.doxbinitalia.it/api/presence', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: sessionId,
+        user_agent: navigator.userAgent
+      })
     });
 
-    // Aggiorna ogni 5 secondi
+    // Ogni 5 secondi aggiorna last_seen
     setInterval(async () => {
-      await supabase.from('online_users')
-        .update({ last_seen: new Date().toISOString() })
-        .eq('session_id', sessionId);
+      await fetch('https://www.doxbinitalia.it/api/presence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: sessionId,
+          user_agent: navigator.userAgent
+        })
+      });
     }, 5000);
-
   } catch (err) {
     console.error('Errore initSession:', err);
   }
@@ -412,35 +404,35 @@ async function initSession() {
 // 🔥 Aggiorna il contatore “Utenti online”
 async function updateOnlineCount() {
   try {
-    const { data, error } = await supabase
-      .from('online_users')
-      .select('session_id, last_seen');
-
-    if (error) throw error;
-
-    const now = Date.now();
-    const active = data.filter(u => now - new Date(u.last_seen).getTime() < 10000);
-    document.getElementById('onlineCount').textContent = active.length;
+    const res = await fetch('https://www.doxbinitalia.it/api/presence');
+    const data = await res.json();
+    document.getElementById('onlineCount').textContent = data.count_ips || data.count_hashes || 0;
   } catch (err) {
     console.error('Errore updateOnlineCount:', err);
   }
 }
 
+// Aggiorna ogni 3 secondi
 setInterval(updateOnlineCount, 3000);
 updateOnlineCount();
 initSession();
 
-// 🔴 Cancella sessione all’uscita
+// 🔴 Cancella sessione all’uscita (facoltativo)
 window.addEventListener('beforeunload', async () => {
-  if (sessionId) {
-    await supabase.from('online_users').delete().eq('session_id', sessionId);
-  }
+  try {
+    await fetch('https://www.doxbinitalia.it/api/presence', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sessionId })
+    });
+  } catch (err) {}
 });
 </script>
 
 
 </body>
 </html>
+
 
 
 
