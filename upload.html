@@ -284,9 +284,15 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-        const API_URL = 'https://www.doxbinitalia.it/api/paste';
+        const SUPABASE_URL = 'https://xsenbbecfusdvxmkdkqg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZW5iYmVjZnVzZHZ4bWtka3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NDgxMDUsImV4cCI6MjA3NzUyNDEwNX0.5ufF7abIrQUWuEXADeaBarDB5ajSAaTXNcWQMvMwKvc';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const supabase = createClient(API_URL);
+        // Check if logged in
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            window.location.href = 'login.html';
+        }
 
         window.toggleMenu = function() {
             document.querySelector('.nav-wrapper').classList.toggle('show');
@@ -306,14 +312,14 @@
 
         window.submitPaste = async function(e) {
             e.preventDefault();
-            
+
             const title = document.getElementById('pasteTitle').value.trim();
             const content = document.getElementById('pasteContent').value;
             const notifyFollowers = document.getElementById('notify').checked;
             const errorDiv = document.getElementById('errorMessage');
             const successDiv = document.getElementById('successMessage');
             const submitBtn = document.getElementById('submitBtn');
-            
+
             errorDiv.textContent = '';
             successDiv.textContent = '';
 
@@ -331,9 +337,8 @@
             submitBtn.textContent = 'Creating...';
 
             try {
-                const { data: { session } } = await supabase.auth.getSession();
-                const username = session ? (session.user.user_metadata.username || session.user.email.split('@')[0]) : 'Anonymous';
-                const userId = session ? session.user.id : null;
+                const username = session.user.user_metadata.username || session.user.email.split('@')[0];
+                const userId = session.user.id;
 
                 const { data, error } = await supabase
                     .from('pastes')
@@ -357,7 +362,7 @@
                 }
 
                 successDiv.textContent = 'Paste created successfully!';
-                
+
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 1000);
@@ -372,7 +377,7 @@
 
         const toggleButton = document.querySelector('.toggle-sidebar');
         const sidebar = document.querySelector('.sidebar');
-        
+
         toggleButton.addEventListener('click', function() {
             sidebar.classList.toggle('hidden');
             if (sidebar.classList.contains('hidden')) {
@@ -385,12 +390,12 @@
         document.querySelector('.text-area textarea').addEventListener('keydown', function(e) {
             if (e.key === 'Tab') {
                 e.preventDefault();
-                
+
                 var start = this.selectionStart;
                 var end = this.selectionEnd;
-                
+
                 this.value = this.value.substring(0, start) + '\t' + this.value.substring(end);
-                
+
                 this.selectionStart = this.selectionEnd = start + 1;
             }
         });
