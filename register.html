@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Doxbin Italia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Navbar Styles */
+        nav {
+            background: #0a0a0a;
+            border-bottom: 1px solid #1a1a1a;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        
+        .nav-brand a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .navbar-toggler {
+            display: none;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .nav-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 25px;
+        }
+        
+        .nav-menu li a {
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        
+        .nav-menu li a:hover,
+        .nav-menu li.active a {
+            color: #ffffff;
+        }
+        
+        .nav-auth {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 15px;
+        }
+        
+        .nav-auth li a {
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        
+        .nav-auth li a:hover {
+            color: #ffffff;
+        }
+        
+        .online-count {
+            display: flex;
+            align-items: center;
+            color: #00ff00;
+            font-size: 12px;
+        }
+        
+        .online-count::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #00ff00;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7);
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 6px rgba(0, 255, 0, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 0, 0);
+            }
+        }
+
+        /* Register Form Styles */
+        .register-container {
+            max-width: 400px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+
+        .register-box {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 40px;
+        }
+
+        .register-box h1 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #888;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: #181818;
+            border: 1px solid #282828;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: #0da9f8;
+        }
+
+        .form-input::placeholder {
+            color: #555;
+        }
+
+        .password-strength {
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .password-strength.weak {
+            color: #ff0000;
+            display: block;
+        }
+
+        .password-strength.medium {
+            color: #ffaa00;
+            display: block;
+        }
+
+        .password-strength.strong {
+            color: #00ff00;
+            display: block;
+        }
+
+        .register-button {
+            width: 100%;
+            padding: 12px;
+            background: #0da9f8;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+            font-weight: 500;
+        }
+
+        .register-button:hover {
+            background: #0c8fd8;
+        }
+
+        .register-button:disabled {
+            background: #333;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #ff0000;
+            font-size: 13px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .success-message {
+            color: #00ff00;
+            font-size: 13px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        .form-footer a {
+            color: #0da9f8;
+            text-decoration: none;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 1000px) {
+            .navbar-toggler {
+                display: block;
+            }
+            
+            .nav-wrapper {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background: #0a0a0a;
+                flex-direction: column;
+                padding: 20px;
+                transition: left 0.3s;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            .nav-wrapper.show {
+                left: 0;
+            }
+            
+            .nav-menu {
+                flex-direction: column;
+                width: 100%;
+                gap: 15px;
+            }
+            
+            .nav-auth {
+                flex-direction: column;
+                width: 100%;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .register-box {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html">Doxbin Italia</a>
+            </div>
+            <button class="navbar-toggler" type="button" onclick="toggleMenu()">
+                ☰
+            </button>
+            <div class="nav-wrapper">
+                <ul class="nav-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="/upload">Add Paste</a></li>
+                    <li><a href="/users">Users</a></li>
+                </ul>
+                <div class="online-count">
+                    <span id="onlineCount">0</span>
+                </div>
+                <div class="nav-auth">
+                    <li><a href="login.html">Login</a></li>
+                    <li class="active"><a href="register.html">Register</a></li>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="register-container">
+        <div class="register-box">
+            <h1>Register</h1>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" class="form-input" placeholder="Choose a username" required minlength="3">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="Create a password" required minlength="6">
+                    <div id="passwordStrength" class="password-strength"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm your password" required>
+                </div>
+
+                <button type="submit" class="register-button" id="registerBtn">Register</button>
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
+            </form>
+            
+            <div class="form-footer">
+                Already have an account? <a href="login.html">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        
+        const SUPABASE_URL = 'https://xsenbbecfusdvxmkdkqg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZW5iYmVjZnVzZHZ4bWtka3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NDgxMDUsImV4cCI6MjA3NzUyNDEwNX0.5ufF7abIrQUWuEXADeaBarDB5ajSAaTXNcWQMvMwKvc';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Check if already logged in
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            window.location.href = 'index.html';
+        }
+
+        // Menu toggle
+        window.toggleMenu = function() {
+            document.querySelector('.nav-wrapper').classList.toggle('show');
+        };
+
+        // Update online count
+        async function updateOnlineCount() {
+            try {
+                const thirtySecondsAgo = new Date(Date.now() - 30000).toISOString();
+                const { count } = await supabase
+                    .from('online_users')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('last_seen', thirtySecondsAgo);
+
+                document.getElementById('onlineCount').textContent = count || 0;
+            } catch (error) {
+                console.error('Error updating count:', error);
+            }
+        }
+
+        updateOnlineCount();
+        setInterval(updateOnlineCount, 5000);
+
+        // Password strength indicator
+        const passwordInput = document.getElementById('password');
+        const passwordStrength = document.getElementById('passwordStrength');
+
+        passwordInput.addEventListener('input', () => {
+            const password = passwordInput.value;
+            let strength = 'weak';
+            
+            if (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
+                strength = 'strong';
+            } else if (password.length >= 6) {
+                strength = 'medium';
+            }
+
+            passwordStrength.className = `password-strength ${strength}`;
+            passwordStrength.textContent = `Password strength: ${strength.toUpperCase()}`;
+        });
+
+        // Register form handler
+        const registerForm = document.getElementById('registerForm');
+        const registerBtn = document.getElementById('registerBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Reset messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                errorMessage.textContent = 'Passwords do not match';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'Registering...';
+
+            try {
+                // Register user
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            username: username
+                        }
+                    }
+                });
+
+                if (error) throw error;
+
+                successMessage.textContent = 'Registration successful! Redirecting to login...';
+                successMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+
+            } catch (error) {
+                errorMessage.textContent = error.message || 'Registration failed. Please try again.';
+                errorMessage.style.display = 'block';
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Register';
+            }
+        });
+    </script>
+</body>
+</html>
