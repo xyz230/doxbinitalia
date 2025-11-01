@@ -281,8 +281,30 @@
         </div>
     </div>
 
-    <script>
-        // Usa window.storage invece di Supabase per evitare CORS
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://xsenbbecfusdvxmkdkqg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZW5iYmVjZnVzZHZ4bWtka3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NDgxMDUsImV4cCI6MjA3NzUyNDEwNX0.5ufF7abIrQUWuEXADeaBarDB5ajSAaTXNcWQMvMwKvc';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        window.toggleMenu = function() {
+            document.querySelector('.nav-wrapper').classList.toggle('show');
+        };
+
+        window.toggleDropdown = function(event) {
+            event.stopPropagation();
+            const menu = event.currentTarget.nextElementSibling;
+            menu.classList.toggle('show');
+        };
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        });
+
         window.submitPaste = async function(e) {
             e.preventDefault();
             
@@ -310,23 +332,30 @@
             submitBtn.textContent = 'Creating...';
 
             try {
-                // Genera ID univoco
-                const pasteId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                
-                // Prepara i dati del paste
-                const pasteData = {
-                    id: pasteId,
-                    title: title,
-                    content: content,
-                    created_by: 'Anonymous',
-                    views: 0,
-                    comments: 0,
-                    notify_followers: notifyFollowers,
-                    created_at: new Date().toISOString()
-                };
+                const { data: { session } } = await supabase.auth.getSession();
+                const username = session ? (session.user.user_metadata.username || session.user.email.split('@')[0]) : 'Anonymous';
+                const userId = session ? session.user.id : null;
 
-                // Salva usando window.storage
-                await window.storage.set(`paste:${pasteId}`, JSON.stringify(pasteData), true);
+                const { data, error } = await supabase
+                    .from('pastes')
+                    .insert([
+                        {
+                            title: title,
+                            content: content,
+                            created_by: username,
+                            user_id: userId,
+                            views: 0,
+                            comments: 0,
+                            notify_followers: notifyFollowers
+                        }
+                    ])
+                    .select()
+                    .single();
+
+                if (error) {
+                    console.error('Supabase error:', error);
+                    throw error;
+                }
 
                 successDiv.textContent = 'Paste created successfully!';
                 
@@ -336,7 +365,7 @@
 
             } catch (error) {
                 console.error('Error creating paste:', error);
-                errorDiv.textContent = 'An error occurred while creating the paste';
+                errorDiv.textContent = error.message || 'An error occurred while creating the paste';
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Create';
             }
