@@ -330,7 +330,7 @@
                 <ul class="nav-menu">
                     <li class="active"><a href="index.html">Home</a></li>
                     <li><a href="upload.html">Add Paste</a></li>
-                    <li><a href="/users">Users</a></li>
+                    <li><a href="users.html">Users</a></li>
                 </ul>
                 <div class="online-count">
                     <span id="onlineCount">0</span>
@@ -368,66 +368,146 @@
         </table>
     </div>
 
-<script type="module">
-let sessionId = null;
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        
+        const SUPABASE_URL = 'https://xsenbbecfusdvxmkdkqg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZW5iYmVjZnVzZHZ4bWtka3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NDgxMDUsImV4cCI6MjA3NzUyNDEwNX0.5ufF7abIrQUWuEXADeaBarDB5ajSAaTXNcWQMvMwKvc';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 🟢 Crea e registra la sessione tramite il tuo endpoint /api/presence
-async function initSession() {
-  sessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now();
+        // Check session and update nav
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            const navAuth = document.getElementById('navAuth');
+            
+            if (session) {
+                const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+                const role = session.user.user_metadata?.role || 'user';
+                const roleColors = {
+                    owner: '#ff0000',
+                    admin: '#800080',
+                    premium: '#ffff00',
+                    user: '#ffffff'
+                };
+                const roleColor = roleColors[role] || '#ffffff';
 
-  try {
-    await fetch('https://www.doxbinitalia.it/api/presence', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        session_id: sessionId,
-        user_agent: navigator.userAgent
-      })
-    });
+                navAuth.innerHTML = `
+                    <li class="dropdown">
+                        <button class="dropdown-toggle" onclick="toggleDropdown(event)">
+                            <span style="color: ${roleColor};">${username}</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="settings.html">Settings</a>
+                            <a href="#" onclick="handleLogout(event)">Logout</a>
+                        </div>
+                    </li>
+                `;
+            } else {
+                navAuth.innerHTML = `
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="register.html">Register</a></li>
+                `;
+            }
+        }
 
-    // Ogni 5 secondi aggiorna last_seen
-    setInterval(async () => {
-      await fetch('https://www.doxbinitalia.it/api/presence', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: sessionId,
-          user_agent: navigator.userAgent
-        })
-      });
-    }, 5000);
-  } catch (err) {
-    console.error('Errore initSession:', err);
-  }
-}
+        // Menu functions
+        window.toggleMenu = function() {
+            document.querySelector('.nav-wrapper').classList.toggle('show');
+        };
 
-// 🔥 Aggiorna il contatore “Utenti online”
-async function updateOnlineCount() {
-  try {
-    const res = await fetch('https://www.doxbinitalia.it/api/presence');
-    const data = await res.json();
-    document.getElementById('onlineCount').textContent = data.count_ips || data.count_hashes || 0;
-  } catch (err) {
-    console.error('Errore updateOnlineCount:', err);
-  }
-}
+        window.toggleDropdown = function(event) {
+            event.stopPropagation();
+            const menu = event.currentTarget.nextElementSibling;
+            menu.classList.toggle('show');
+        };
 
-// Aggiorna ogni 3 secondi
-setInterval(updateOnlineCount, 3000);
-updateOnlineCount();
-initSession();
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        });
 
-// 🔴 Cancella sessione all’uscita (facoltativo)
-window.addEventListener('beforeunload', async () => {
-  try {
-    await fetch('https://www.doxbinitalia.it/api/presence', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: sessionId })
-    });
-  } catch (err) {}
-});
-</script>
+        window.handleLogout = async function(event) {
+            event.preventDefault();
+            await supabase.auth.signOut();
+            checkSession();
+            window.location.reload();
+        };
+
+        // Update online count using Supabase
+        async function updateOnlineCount() {
+            try {
+                const thirtySecondsAgo = new Date(Date.now() - 30000).toISOString();
+                const { count } = await supabase
+                    .from('online_users')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('last_seen', thirtySecondsAgo);
+                document.getElementById('onlineCount').textContent = count || 0;
+            } catch (error) {
+                console.error('Error updating count:', error);
+            }
+        }
+
+        // Load pastes
+        async function loadPastes() {
+            try {
+                const { data: pastes, error } = await supabase
+                    .from('pastes')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const tbody = document.getElementById('pastesTableBody');
+                tbody.innerHTML = '';
+
+                pastes.forEach(paste => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><a href="#" onclick="viewPaste('${paste.id}')">${paste.title || 'Untitled'}</a></td>
+                        <td>${paste.comments || 0}</td>
+                        <td>${paste.views || 0}</td>
+                        <td>${paste.created_by}</td>
+                        <td>${new Date(paste.created_at).toLocaleDateString()}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading pastes:', error);
+            }
+        }
+
+        window.viewPaste = function(id) {
+            // For now, alert or redirect to a paste view page
+            alert(`Viewing paste ID: ${id}`);
+            // Later: window.location.href = `paste.html?id=${id}`;
+        };
+
+        // Search functionality
+        document.querySelector('.search-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = document.querySelector('.search-box').value.toLowerCase();
+            const rows = document.querySelectorAll('#pastesTableBody tr');
+            rows.forEach(row => {
+                const title = row.cells[0].textContent.toLowerCase();
+                row.style.display = title.includes(query) ? '' : 'none';
+            });
+        });
+
+        // Init
+        checkSession();
+        loadPastes();
+        updateOnlineCount();
+        setInterval(updateOnlineCount, 5000);
+
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            checkSession();
+            if (event === 'SIGNED_IN') {
+                loadPastes();
+            }
+        });
+    </script>
 
 
 </body>
