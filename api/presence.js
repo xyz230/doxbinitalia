@@ -69,7 +69,7 @@ export default async function handler(req, res) {
       const resp = await fetch(`${SUPABASE_URL}/rest/v1/presence?select=session_id,ip,ip_hash,last_seen&${filter}`, {
         method: 'GET',
         headers: {
-          apikey: SUPABASE_KEY,
+          apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZW5iYmVjZnVzZHZ4bWtka3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NDgxMDUsImV4cCI6MjA3NzUyNDEwNX0.5ufF7abIrQUWuEXADeaBarDB5ajSAaTXNcWQMvMwKvc,
           Authorization: `Bearer ${SUPABASE_KEY}`,
         }
       });
