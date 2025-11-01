@@ -327,18 +327,30 @@
             });
         });
 
-        // Update online count
+        // Update online count - conta solo utenti registrati unici
         async function updateOnlineCount() {
             try {
                 const thirtySecondsAgo = new Date(Date.now() - 30000).toISOString();
-                const { count } = await supabase
+                
+                // Prendi tutte le sessioni attive
+                const { data: sessions, error } = await supabase
                     .from('online_users')
-                    .select('*', { count: 'exact', head: true })
+                    .select('user_id')
                     .gte('last_seen', thirtySecondsAgo);
 
-                document.getElementById('onlineCount').textContent = count || 0;
+                if (error) throw error;
+
+                // Conta solo utenti unici (rimuovi duplicati e sessioni guest)
+                const uniqueUsers = new Set(
+                    sessions
+                        .filter(s => s.user_id) // Solo utenti loggati
+                        .map(s => s.user_id)
+                );
+
+                document.getElementById('onlineCount').textContent = uniqueUsers.size;
             } catch (error) {
                 console.error('Error updating count:', error);
+                document.getElementById('onlineCount').textContent = 0;
             }
         }
 
