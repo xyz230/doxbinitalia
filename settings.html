@@ -308,8 +308,8 @@
             <div class="nav-wrapper">
                 <ul class="nav-menu">
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="/upload">Add Paste</a></li>
-                    <li><a href="/users">Users</a></li>
+                    <li><a href="upload.html">Add Paste</a></li>
+                    <li><a href="#users">Users</a></li>
                 </ul>
                 <div class="nav-auth" id="navAuth"></div>
             </div>
@@ -324,7 +324,7 @@
         <!-- Profile Settings -->
         <div class="settings-section">
             <div class="section-title">Profile Information</div>
-            
+
             <form id="profileForm">
                 <div class="form-group">
                     <label>Profile Picture</label>
@@ -340,6 +340,19 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Banner Picture</label>
+                    <div class="avatar-upload">
+                        <div class="avatar-preview" style="width: 200px; height: 100px;">
+                            <img id="bannerPreview" src="https://via.placeholder.com/200x100/0a0a0a/888888?text=No+Banner" alt="Banner" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="file-input-wrapper">
+                            <label class="file-input-label" for="bannerInput">Choose Banner</label>
+                            <input type="file" id="bannerInput" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" class="form-input" placeholder="Your username">
                 </div>
@@ -347,6 +360,16 @@
                 <div class="form-group">
                     <label for="bio">Bio</label>
                     <textarea id="bio" class="form-input form-textarea" placeholder="Tell us about yourself..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" class="form-input">
+                        <option value="user">User</option>
+                        <option value="premium">Premium</option>
+                        <option value="admin">Admin</option>
+                        <option value="owner">Owner</option>
+                    </select>
                 </div>
 
                 <button type="submit" class="save-button" id="profileBtn">Save Profile</button>
@@ -435,7 +458,6 @@
                     <span style="color: #2A9FD6;">${username}</span>
                 </button>
                 <div class="dropdown-menu">
-                    <a href="profile.html">Profile</a>
                     <a href="settings.html">Settings</a>
                     <a href="#" onclick="handleLogout(event)">Logout</a>
                 </div>
@@ -446,9 +468,13 @@
         document.getElementById('username').value = username;
         document.getElementById('email').value = session.user.email;
         document.getElementById('bio').value = session.user.user_metadata.bio || '';
-        
+        document.getElementById('role').value = session.user.user_metadata.role || 'user';
+
         const avatarUrl = session.user.user_metadata.avatar_url || `https://ui-avatars.com/api/?name=${username}&background=0da9f8&color=fff&size=200`;
         document.getElementById('avatarPreview').src = avatarUrl;
+
+        const bannerUrl = session.user.user_metadata.banner_url || 'https://via.placeholder.com/200x100/0a0a0a/888888?text=No+Banner';
+        document.getElementById('bannerPreview').src = bannerUrl;
 
         // Avatar upload preview
         document.getElementById('avatarInput').addEventListener('change', function(e) {
@@ -457,6 +483,18 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     document.getElementById('avatarPreview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Banner upload preview
+        document.getElementById('bannerInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('bannerPreview').src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }
@@ -479,19 +517,30 @@
                 const newUsername = document.getElementById('username').value;
                 const newBio = document.getElementById('bio').value;
                 const avatarFile = document.getElementById('avatarInput').files[0];
-                
+                const bannerFile = document.getElementById('bannerInput').files[0];
+
                 let avatarUrl = session.user.user_metadata.avatar_url;
-                
+                let bannerUrl = session.user.user_metadata.banner_url;
+
                 // Upload avatar if changed
                 if (avatarFile) {
                     avatarUrl = await uploadAvatar(avatarFile);
                 }
 
+                // Upload banner if changed
+                if (bannerFile) {
+                    bannerUrl = await uploadAvatar(bannerFile);
+                }
+
+                const newRole = document.getElementById('role').value;
+
                 const { error } = await supabase.auth.updateUser({
                     data: {
                         username: newUsername,
                         bio: newBio,
-                        avatar_url: avatarUrl
+                        avatar_url: avatarUrl,
+                        banner_url: bannerUrl,
+                        role: newRole
                     }
                 });
 
@@ -499,7 +548,7 @@
 
                 successMsg.textContent = 'Profile updated successfully!';
                 successMsg.style.display = 'block';
-                
+
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
